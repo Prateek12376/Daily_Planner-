@@ -14,6 +14,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingTodo, setEditingTodo] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const { darkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
 
@@ -21,23 +22,21 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   useEffect(() => {
     fetchTodos();
-  }, [selectedDate]);
+  }, [selectedDate]); // clean & error-free
 
   const fetchTodos = async () => {
     try {
       setLoading(true);
-      // Use local midnight epoch milliseconds to avoid UTC day shift
+
       const localMidnight = new Date(
         selectedDate.getFullYear(),
         selectedDate.getMonth(),
         selectedDate.getDate(),
-        0,
-        0,
-        0,
-        0
+        0, 0, 0, 0
       ).getTime();
+
       const response = await api.get(`/todos/date/${localMidnight}`);
-      setTodos(response.data);
+      setTodos(response.data || []);
     } catch (error) {
       console.error('Error fetching todos:', error);
     } finally {
@@ -66,19 +65,20 @@ const Dashboard = ({ setIsAuthenticated }) => {
       if (editingTodo) {
         await api.put(`/todos/${editingTodo._id}`, todoData);
       } else {
-        // Prefer the datetime picked in the form; fall back to the selected calendar date
         const payload = {
           ...todoData,
           date: todoData?.date ? new Date(todoData.date) : new Date(selectedDate)
         };
         await api.post('/todos', payload);
       }
+
       fetchTodos();
       setShowForm(false);
       setEditingTodo(null);
+
     } catch (error) {
-      console.error('Error saving todo:', error?.response?.data || error?.message || error);
-      alert(error?.response?.data?.message || 'Failed to save todo. Please try again.');
+      console.error('Error saving todo:', error);
+      alert('Failed to save todo. Please try again.');
     }
   };
 
@@ -89,7 +89,6 @@ const Dashboard = ({ setIsAuthenticated }) => {
         fetchTodos();
       } catch (error) {
         console.error('Error deleting todo:', error);
-        alert('Failed to delete todo. Please try again.');
       }
     }
   };
@@ -115,11 +114,18 @@ const Dashboard = ({ setIsAuthenticated }) => {
       <header className="dashboard-header">
         <div className="header-content">
           <h1>Daily Planner</h1>
+
           <div className="header-actions">
-            <span className="username">Welcome, {user.username}</span>
-            <button className="theme-toggle" onClick={toggleDarkMode}>
+            <span className="username">Welcome, {user?.username || 'User'}</span>
+
+            <button
+              className="theme-toggle"
+              onClick={toggleDarkMode}
+              aria-label="Toggle theme"
+            >
               {darkMode ? '☀️' : '🌙'}
             </button>
+
             <button className="logout-button" onClick={handleLogout}>
               Logout
             </button>
@@ -128,28 +134,39 @@ const Dashboard = ({ setIsAuthenticated }) => {
       </header>
 
       <div className="dashboard-content">
-        <div className="calendar-section">
-          <div className="calendar-wrapper">
+
+        {/* Calendar Section */}
+        <aside className="calendar-section">
+          <div className="calendar-wrapper glass-card">
             <Calendar
               onChange={handleDateChange}
               value={selectedDate}
               className={darkMode ? 'dark-calendar' : ''}
             />
-            <button className="add-todo-button" onClick={handleAddTodo}>
+
+            <button className="add-todo-cta" onClick={handleAddTodo}>
               + Add Todo
             </button>
           </div>
-        </div>
+        </aside>
 
-        <div className="todos-section">
-          <h2 className="section-title">
-            Todos for {selectedDate.toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </h2>
+        {/* Todos Section */}
+        <main className="todos-section glass-card">
+
+          <div className="todos-top">
+            <h2 className="section-title">
+              Todos for {selectedDate.toLocaleDateString(undefined, {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </h2>
+
+            <button className="btn-small" onClick={() => setSelectedDate(new Date())}>
+              Today
+            </button>
+          </div>
 
           {showForm && (
             <TodoForm
@@ -173,11 +190,10 @@ const Dashboard = ({ setIsAuthenticated }) => {
               onToggleComplete={handleToggleComplete}
             />
           )}
-        </div>
+        </main>
       </div>
     </div>
   );
 };
 
 export default Dashboard;
-

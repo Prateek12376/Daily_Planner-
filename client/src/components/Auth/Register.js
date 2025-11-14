@@ -25,28 +25,24 @@ const Register = ({ setIsAuthenticated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+    if (formData.password !== formData.confirmPassword)
+      return setError('Passwords do not match');
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
+    if (formData.password.length < 6)
+      return setError('Password must be at least 6 characters');
 
     setLoading(true);
 
     try {
-      const { confirmPassword, ...registerData } = formData;
-      const response = await api.post('/auth/register', registerData);
+      const { confirmPassword, ...data } = formData;
+      const response = await api.post('/auth/register', data);
+
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setIsAuthenticated(true);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || 'Registration failed.');
     } finally {
       setLoading(false);
     }
@@ -54,7 +50,7 @@ const Register = ({ setIsAuthenticated }) => {
 
   return (
     <div className={`auth-container ${darkMode ? 'dark' : ''}`}>
-      <div className="auth-card">
+      <div className="glass-card">
         <h1 className="auth-title">Create Account</h1>
         <p className="auth-subtitle">Sign up to get started</p>
 
@@ -62,60 +58,58 @@ const Register = ({ setIsAuthenticated }) => {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label>Username</label>
             <input
               type="text"
-              id="username"
+              className="input-modern"
               name="username"
-              value={formData.username}
               onChange={handleChange}
+              value={formData.username}
+              placeholder="Enter username"
               required
-              placeholder="Choose a username"
-              minLength="3"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label>Email</label>
             <input
               type="email"
-              id="email"
+              className="input-modern"
               name="email"
+              onChange={handleChange}
               value={formData.email}
-              onChange={handleChange}
-              required
               placeholder="Enter your email"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label>Password</label>
             <input
               type="password"
-              id="password"
+              className="input-modern"
               name="password"
-              value={formData.password}
               onChange={handleChange}
+              value={formData.password}
+              placeholder="Create password"
               required
-              placeholder="Create a password"
-              minLength="6"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label>Confirm Password</label>
             <input
               type="password"
-              id="confirmPassword"
+              className="input-modern"
               name="confirmPassword"
-              value={formData.confirmPassword}
               onChange={handleChange}
+              value={formData.confirmPassword}
+              placeholder="Confirm password"
               required
-              placeholder="Confirm your password"
             />
           </div>
 
-          <button type="submit" className="auth-button" disabled={loading}>
+          <button className="btn-modern" disabled={loading}>
             {loading ? 'Creating account...' : 'Register'}
           </button>
         </form>
@@ -129,4 +123,3 @@ const Register = ({ setIsAuthenticated }) => {
 };
 
 export default Register;
-

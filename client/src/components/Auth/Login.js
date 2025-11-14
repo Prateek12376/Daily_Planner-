@@ -40,7 +40,7 @@ const Login = ({ setIsAuthenticated }) => {
 
   return (
     <div className={`auth-container ${darkMode ? 'dark' : ''}`}>
-      <div className="auth-card">
+      <div className="glass-card">
         <h1 className="auth-title">Welcome Back</h1>
         <p className="auth-subtitle">Login to your account</p>
 
@@ -48,32 +48,32 @@ const Login = ({ setIsAuthenticated }) => {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label>Email</label>
             <input
               type="email"
-              id="email"
+              className="input-modern"
               name="email"
-              value={formData.email}
               onChange={handleChange}
-              required
+              value={formData.email}
               placeholder="Enter your email"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label>Password</label>
             <input
               type="password"
-              id="password"
+              className="input-modern"
               name="password"
-              value={formData.password}
               onChange={handleChange}
-              required
+              value={formData.password}
               placeholder="Enter your password"
+              required
             />
           </div>
 
-          <button type="submit" className="auth-button" disabled={loading}>
+          <button className="btn-modern" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
@@ -87,4 +87,3 @@ const Login = ({ setIsAuthenticated }) => {
 };
 
 export default Login;
-
